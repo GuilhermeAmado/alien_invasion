@@ -27,9 +27,9 @@ class Ship:
     def update(self):
         """Atualiza a posição da nave baseado nas flags de movimento."""
         # Atualiza a posição x da nave baseado na configuração de velocidade
-        if self.moving_right:
+        if self.moving_right and self.rect.right < self.screen_rect.right:
             self.x += self.settings.ship_speed
-        if self.moving_left:
+        if self.moving_left and self.rect.left > 0:
             self.x -= self.settings.ship_speed
 
         # Atualiza o objeto retangulo a partir do self.x
