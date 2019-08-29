@@ -5,6 +5,7 @@ import pygame
 from settings import Settings
 from ship import Ship
 from bullet import Bullet
+from alien import Alien
 
 
 class AlienInvasion:
@@ -21,6 +22,9 @@ class AlienInvasion:
 
         self.ship = Ship(self)
         self.bullets = pygame.sprite.Group()
+        self.aliens = pygame.sprite.Group()
+
+        self._create_fleet()
 
         # Define a cor do background.
         self.bg_color = (230, 230, 230)
@@ -75,6 +79,34 @@ class AlienInvasion:
             if bullet.rect.bottom <= 0:
                 self.bullets.remove(bullet)
 
+    def _create_fleet(self):
+        """Cria uma frota de aliens"""
+        alien = Alien(self)
+        alien_width, alien_height = alien.rect.size
+        # Calcula o espaço disponível para os aliens em uma linha
+        available_space_x = self.settings.screen_width - (2 * alien_width)
+        number_aliens_x = available_space_x // (2 * alien_width)
+
+        # Determina o número de linhas de aliens que cabe na tela
+        ship_height = self.ship.rect.height
+        available_space_y = (self.settings.screen_height -
+                             (3 * alien_height) - ship_height)
+        number_rows = available_space_y // (2 * alien_height)
+
+        # Cria uma frota inteira de aliens
+        for row_number in range(number_rows - 5):
+            for alien_number in range(number_aliens_x):
+                self._create_alien(alien_number, row_number)
+
+    def _create_alien(self, alien_number, row_number):
+        """Cria um alien e adiciona na primeira linha"""
+        alien = Alien(self)
+        alien_width, alien_height = alien.rect.size
+        alien.x = alien_width + 2 * alien_width * alien_number
+        alien.rect.x = alien.x
+        alien.rect.y = alien.rect.height + 2 * alien.rect.height * row_number
+        self.aliens.add(alien)
+
     def _update_screen(self):
         # Preenche a tela com a cor escolhida em cada passagem do loop.
         self.screen.fill(self.settings.bg_color)
@@ -83,6 +115,8 @@ class AlienInvasion:
         # Renderiza o grupo de balas atiradas
         for bullet in self.bullets.sprites():
             bullet.draw_bullet()
+        # Renderiza frota de aliens
+        self.aliens.draw(self.screen)
         # Deixa visível a ultima tela recentemente renderizada.
         pygame.display.flip()
 
